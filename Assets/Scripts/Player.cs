@@ -11,10 +11,12 @@ public class Player : MonoBehaviour
 
     public float movementSpeed = 10f;
     public float gravity = -20f;
+    public float jumpHeight = 8f;
+
     public CharacterController2D controller;
     private Vector3 motion; //
     public Animator anim;
-    public float jumpHeight = 8f;
+   
     private void Reset()
     {
         controller = GetComponent<CharacterController2D>();
@@ -28,31 +30,37 @@ public class Player : MonoBehaviour
         float inputH = Input.GetAxis("Horizontal");
         float inputV = Input.GetAxis("Vertical");
         
-        motion.y += gravity * Time.deltaTime;
-        if (controller.isGrounded)
+        
+        if (!controller.isGrounded)
         {
-            motion.y = 0f;
+            //only happenning while char is in the air
+            motion.y += gravity * Time.deltaTime;
+        }
+        else
+        {
+            //we are here constantly while grounded
             if (Input.GetButtonDown("Jump"))
             {
+                //we are here for only one update cycle as we call Jump() 
                 Jump();
-                anim.SetBool("IsJumping", true);
-                Debug.Log(inputV);
-                Debug.Log("Jumping");
 
+                //we are in air and we set IsJumping to true
+                //since char is in the air (and while in the air) IsJumping will remain true (till we are grounded)
+                anim.SetBool("IsJumping", true);
             }
             else
             {
+                //constantly happening while on ground 
                 anim.SetBool("IsJumping", false);
             }
-
-
-
         }
 
+
+        //constatnly being checked every update cycle
         if (anim.GetBool("IsJumping"))
         {
-            anim.SetFloat("JumpY", inputV);
-            
+            anim.SetFloat("JumpY", motion.y);
+
         }
 
         Climb(inputV);
